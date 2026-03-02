@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyCV Pro - Professional CV Maker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Montserrat:wght@300;400;500;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- PDF & Image Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            --accent-color: #2563eb;
+            --accent-color-rgb: 37, 99, 235;
+            --primary-gradient: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color), #000 25%) 100%);
+            --dark-bg: #0B0618;
+            --text-main: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(var(--accent-color-rgb), 0.15);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(var(--accent-color-rgb), 0.25) 0%, transparent 70%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.6) 100%);
+            z-index: 9998;
+        }
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-effect::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            pointer-events: none;
+        }
+        .btn-gradient {
+            background: var(--primary-gradient);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 22px;
+            box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 700;
+        }
+        .btn-gradient:hover {
+            box-shadow: 0 0 30px rgba(var(--accent-color-rgb), 0.6);
+            transform: scale(1.04);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 22px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+        .nav-glass {
+            background: rgba(11, 6, 24, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .section-header {
+            color: var(--text-main);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 4px;
+        }
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 3px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(var(--accent-color-rgb), 0.2);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(var(--accent-color-rgb), 0.4);
+        }
+        .preview-card {
+            box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(var(--accent-color-rgb), 0.15);
+            border: 1px solid rgba(var(--accent-color-rgb), 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+        }
+        .preview-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.9), 0 0 50px rgba(var(--accent-color-rgb), 0.25);
+        }
+        /* Input styling for glassmorphism */
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select, textarea {
+            background: rgba(255, 255, 255, 0.03) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            border-radius: 14px !important;
+            transition: all 0.3s ease !important;
+            padding: 0.75rem 1rem !important;
+        }
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.3) !important;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--accent-color) !important;
+            background: rgba(255, 255, 255, 0.07) !important;
+            box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.3) !important;
+            outline: none !important;
+        }
+        label {
+            color: var(--text-muted) !important;
+            font-size: 0.75rem !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.05em !important;
+            margin-bottom: 0.5rem !important;
+            display: block !important;
+        }
+        .template-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .template-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .template-btn.active {
+            background: var(--primary-gradient) !important;
+            color: white !important;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(var(--accent-color-rgb), 0.5);
+            transform: scale(1.05) translateY(-2px);
+        }
+        
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; }
+            body::after { display: none; }
+            .preview-card { box-shadow: none !important; border: none !important; margin: 0 !important; width: 100% !important; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .photo-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Typography Sidebar Styles */
+        #typography-sidebar {
+            position: fixed;
+            top: 0;
+            right: -380px;
+            width: 380px;
+            height: 100vh;
+            background: rgba(11, 6, 24, 0.8);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
+            overflow-y: auto;
+        }
+        #typography-sidebar.open {
+            right: 0;
+        }
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        #template-gallery {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translate(-50%, -50%) scale(0.95);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #template-gallery.open {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            transform: translate(-50%, -50%) scale(1) !important;
+        }
+        #cv-preview {
+            transition: all 0.3s ease;
+            --cv-name-color: #000000;
+            --cv-section-color: #2563eb;
+            --cv-body-color: #334155;
+            --cv-accent-color: #2563eb;
+        }
+        .control-group {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            transition: all 0.3s ease;
+        }
+        .control-group:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .control-label span:first-child {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .control-label span:last-child {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            background: rgba(var(--accent-color-rgb), 0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(var(--accent-color-rgb), 0.6);
+            transition: all 0.2s ease;
+            border: 2px solid white;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.8);
+        }
+        
+        /* Anti-aliasing and smoothing */
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            #cv-preview { 
+                box-shadow: none !important; 
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                transform: none !important;
+            }
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                text-shadow: none !important;
+                box-shadow: none !important;
+            }
+        }
+
+        /* Smooth transitions for all interactive elements */
+        button, input, select, textarea, .glass-effect, .preview-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .text-accent { color: var(--accent-color) !important; }
+        .bg-accent { background-color: var(--accent-color) !important; }
+        .border-accent { border-color: var(--accent-color) !important; }
+        .shadow-accent { box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.3) !important; }
+        .bg-accent-alpha { background-color: rgba(var(--accent-color-rgb), 0.4) !important; }
+        .peer:checked + .peer-checked-bg-accent { background-color: var(--accent-color) !important; }
+    </style>
+</head>
+<body class="text-slate-900">
+
+    <!-- Header -->
+    <header class="no-print nav-glass px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-accent to-blue-600 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                <div class="relative flex items-center gap-2 bg-slate-900/50 p-2 rounded-xl border border-white/10 backdrop-blur-md">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-accent">
+                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h1 class="text-lg font-black tracking-tighter text-white">EasyCV<span class="text-accent">Pro</span></h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button onclick="toggleTemplateGallery()" class="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-full transition-all" title="Change Template">
+                <i data-lucide="layout" class="w-5 h-5"></i>
+            </button>
+            <button onclick="toggleTypographySidebar()" class="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-full transition-all" title="Typography Settings">
+                <i data-lucide="type" class="w-5 h-5"></i>
+            </button>
+            <button onclick="resetForm()" class="p-2 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-full transition-all" title="Reset Form">
+                <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+            </button>
+            <div class="h-6 w-[1px] bg-white/10 mx-2 hidden sm:block"></div>
+            <button onclick="exportImage()" class="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-bold btn-secondary">
+                PNG
+            </button>
+            <button onclick="exportPDF()" class="flex items-center gap-2 px-6 py-2.5 text-sm font-bold btn-gradient">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Download PDF</span>
+                <span class="sm:hidden">PDF</span>
+            </button>
+            <button onclick="window.print()" class="p-2 text-slate-400 hover:text-accent hover:bg-white/5 rounded-full transition-all">
+                <i data-lucide="printer" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-[1600px] mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Side: Form Controls -->
+        <div class="no-print lg:col-span-5 space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] pr-2 custom-scrollbar">
+            
+            <!-- Template Selector -->
+            <section class="glass-effect p-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <i data-lucide="layout" class="w-5 h-5 text-accent"></i>
+                    <h2 class="section-header font-bold">Select Template</h2>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-1 bg-black/40 rounded-2xl border border-white/5">
+                    <button onclick="setTemplate('modern')" id="btn-modern" class="template-btn active py-3 px-2 flex flex-col items-center gap-2">
+                        <i data-lucide="align-left" class="w-4 h-4"></i>
+                        <span class="text-[10px] uppercase tracking-tighter">Classic ATS</span>
+                    </button>
+                    <button onclick="setTemplate('minimal')" id="btn-minimal" class="template-btn py-3 px-2 flex flex-col items-center gap-2">
+                        <i data-lucide="center" class="w-4 h-4"></i>
+                        <span class="text-[10px] uppercase tracking-tighter">Minimal</span>
+                    </button>
+                    <button onclick="setTemplate('corporate')" id="btn-corporate" class="template-btn py-3 px-2 flex flex-col items-center gap-2">
+                        <i data-lucide="briefcase" class="w-4 h-4"></i>
+                        <span class="text-[10px] uppercase tracking-tighter">Corporate</span>
+                    </button>
+                    <button onclick="setTemplate('split')" id="btn-split" class="template-btn py-3 px-2 flex flex-col items-center gap-2">
+                        <i data-lucide="columns" class="w-4 h-4"></i>
+                        <span class="text-[10px] uppercase tracking-tighter">Split</span>
+                    </button>
+                    <button onclick="setTemplate('elegant')" id="btn-elegant" class="template-btn py-3 px-2 flex flex-col items-center gap-2">
+                        <i data-lucide="feather" class="w-4 h-4"></i>
+                        <span class="text-[10px] uppercase tracking-tighter">Elegant</span>
+                    </button>
+                    <button onclick="setTemplate('compact')" id="btn-compact" class="template-btn py-3 px-2 flex flex-col items-center gap-2">
+                        <i data-lucide="shrink" class="w-4 h-4"></i>
+                        <span class="text-[10px] uppercase tracking-tighter">Compact</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- App Settings -->
+            <section class="glass-effect p-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <i data-lucide="settings" class="w-5 h-5 text-accent"></i>
+                    <h2 class="section-header font-bold">App Settings</h2>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label>Accent Color</label>
+                        <div class="flex items-center gap-4">
+                            <input type="color" id="input-color" value="#2563eb" oninput="updateColor(this.value)" class="w-12 h-12 rounded-xl cursor-pointer border-2 border-white shadow-md">
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="updateColor('#2563eb')" class="w-7 h-7 rounded-full bg-[#2563eb] border-2 border-white shadow-sm hover:scale-110 transition-transform"></button>
+                                <button onclick="updateColor('#3b82f6')" class="w-7 h-7 rounded-full bg-[#3b82f6] border-2 border-white shadow-sm hover:scale-110 transition-transform"></button>
+                                <button onclick="updateColor('#6A11CB')" class="w-7 h-7 rounded-full bg-[#6A11CB] border-2 border-white shadow-sm hover:scale-110 transition-transform"></button>
+                                <button onclick="updateColor('#10b981')" class="w-7 h-7 rounded-full bg-[#10b981] border-2 border-white shadow-sm hover:scale-110 transition-transform"></button>
+                                <button onclick="updateColor('#f59e0b')" class="w-7 h-7 rounded-full bg-[#f59e0b] border-2 border-white shadow-sm hover:scale-110 transition-transform"></button>
+                                <button onclick="updateColor('#ef4444')" class="w-7 h-7 rounded-full bg-[#ef4444] border-2 border-white shadow-sm hover:scale-110 transition-transform"></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 bg-black/20 rounded-xl border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-white/5 rounded-lg shadow-sm">
+                                <i data-lucide="palette" class="w-4 h-4 text-accent"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-white">Color Presets</p>
+                                <p class="text-[9px] text-slate-400 uppercase tracking-wider">Professional CV themes</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-1.5">
+                            <button onclick="applyColorPreset('classic')" class="w-6 h-6 rounded-full bg-black border border-white/20 hover:scale-110 transition-all" title="Classic Black"></button>
+                            <button onclick="applyColorPreset('corporate')" class="w-6 h-6 rounded-full bg-[#0B3D91] border border-white/20 hover:scale-110 transition-all" title="Corporate Blue"></button>
+                            <button onclick="applyColorPreset('elegant')" class="w-6 h-6 rounded-full bg-[#6A11CB] border border-white/20 hover:scale-110 transition-all" title="Elegant Purple"></button>
+                            <button onclick="applyColorPreset('green')" class="w-6 h-6 rounded-full bg-[#1B5E20] border border-white/20 hover:scale-110 transition-all" title="Deep Green"></button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 bg-black/20 rounded-xl border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-white/5 rounded-lg shadow-sm">
+                                <i data-lucide="type" class="w-4 h-4 text-accent"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-white">Font Size</p>
+                                <p class="text-[9px] text-slate-400 uppercase tracking-wider">Adjust text scale (10px - 20px)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span id="font-size-value" class="text-[10px] font-bold text-slate-400 w-8">14px</span>
+                            <input type="range" id="font-size-slider" min="10" max="18" value="14" oninput="updateFontSize(this.value)" class="w-24 h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 bg-black/20 rounded-xl border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-white/5 rounded-lg shadow-sm">
+                                <i data-lucide="printer" class="w-4 h-4 text-accent"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-white">PDF Quality</p>
+                                <p class="text-[9px] text-slate-400 uppercase tracking-wider">Choose export DPI</p>
+                            </div>
+                        </div>
+                        <select id="pdf-dpi-selector" onchange="updatePDFDPI(this.value)" class="bg-[#0b0618] border border-white/10 rounded-lg text-[10px] font-bold text-white px-2 py-1 outline-none focus:border-accent transition-all">
+                            <option value="150">150 DPI (Small)</option>
+                            <option value="300" selected>300 DPI (High)</option>
+                            <option value="600">600 DPI (Ultra)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 bg-black/20 rounded-xl border border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-white/5 rounded-lg shadow-sm">
+                                <i data-lucide="spell-check" class="w-4 h-4 text-accent"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-white">Spell Check</p>
+                                <p class="text-[9px] text-slate-400 uppercase tracking-wider">Highlight typos in real-time</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="spellcheck-toggle" checked onchange="toggleSpellcheck(this.checked)" class="sr-only peer">
+                            <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked-bg-accent"></div>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Personal Info -->
+            <div class="glass-effect overflow-hidden">
+                <div class="px-6 py-4 flex items-center gap-3 border-b border-white/5">
+                    <i data-lucide="user" class="w-5 h-5 text-accent"></i>
+                    <h2 class="section-header font-bold">Personal Information</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="flex items-center gap-4">
+                        <div class="relative group">
+                            <div id="photo-preview" class="w-20 h-20 rounded-2xl bg-black/20 border-2 border-dashed border-white/10 flex items-center justify-center overflow-hidden shadow-inner">
+                                <i data-lucide="image" class="w-8 h-8 text-slate-600"></i>
+                            </div>
+                            <label class="absolute inset-0 bg-accent-alpha opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-all rounded-2xl backdrop-blur-[2px]">
+                                <i data-lucide="camera" class="text-white w-6 h-6"></i>
+                                <input type="file" id="photo-input" accept="image/*" class="hidden" onchange="handlePhoto(this)">
+                            </label>
+                        </div>
+                        <div class="flex-1">
+                            <label>Full Name</label>
+                            <input type="text" id="input-name" oninput="updatePreview()" spellcheck="${spellcheckEnabled}" value="Boonaa Rafis" placeholder="John Doe">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label>Email</label>
+                            <input type="email" id="input-email" oninput="updatePreview()" spellcheck="${spellcheckEnabled}" value="boo@example.com" placeholder="john@example.com">
+                        </div>
+                        <div>
+                            <label>Phone</label>
+                            <input type="text" id="input-phone" oninput="updatePreview()" spellcheck="${spellcheckEnabled}" value="+880 1XXX-XXXXXX" placeholder="+1 (555) 000-0000">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Address</label>
+                        <input type="text" id="input-address" oninput="updatePreview()" spellcheck="${spellcheckEnabled}" value="Chittagong, Bangladesh" placeholder="City, Country">
+                    </div>
+                    <div>
+                        <label>Career Objective</label>
+                        <textarea id="input-objective" oninput="updatePreview()" rows="3" spellcheck="true" placeholder="Professional summary..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Personal Information -->
+            <div class="glass-effect overflow-hidden">
+                <div class="px-6 py-4 flex items-center gap-3 border-b border-white/5">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-accent"></i>
+                    <h2 class="section-header font-bold">Detailed Personal Information</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label>Father's Name</label>
+                            <input type="text" id="input-father-name" oninput="updatePreview()" spellcheck="${spellcheckEnabled}" value="[Father's Name Placeholder]" placeholder="Father's Name">
+                        </div>
+                        <div>
+                            <label>Mother's Name</label>
+                            <input type="text" id="input-mother-name" oninput="updatePreview()" spellcheck="${spellcheckEnabled}" value="[Mother's Name Placeholder]" placeholder="Mother's Name">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label>Date of Birth</label>
+                            <input type="date" id="input-dob" oninput="updatePreview()" value="1995-01-01">
+                        </div>
+                        <div>
+                            <label>Gender</label>
+                            <select id="input-gender" onchange="updatePreview()">
+                                <option value="">Select Gender</option>
+                                <option value="Male" selected>Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label>Marital Status</label>
+                            <select id="input-marital-status" onchange="updatePreview()">
+                                <option value="">Select Status</option>
+                                <option value="Single" selected>Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Divorced">Divorced</option>
+                                <option value="Widowed">Widowed</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Nationality</label>
+                            <input type="text" id="input-nationality" oninput="updatePreview()" spellcheck="${spellcheckEnabled}" value="Bangladeshi" placeholder="e.g. American">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label>Religion</label>
+                            <input type="text" id="input-religion" oninput="updatePreview()" spellcheck="${spellcheckEnabled}" value="Islam" placeholder="e.g. Christianity">
+                        </div>
+                        <div>
+                            <label>National ID (NID)</label>
+                            <input type="text" id="input-nid" oninput="updatePreview()" spellcheck="${spellcheckEnabled}" value="1234567890" placeholder="NID Number">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label>Blood Group</label>
+                            <select id="input-blood-group" onchange="updatePreview()">
+                                <option value="">Select Blood Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Permanent Address</label>
+                        <textarea id="input-permanent-address" oninput="updatePreview()" rows="2" spellcheck="${spellcheckEnabled}" placeholder="Your permanent address..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experience -->
+            <div class="glass-effect overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b border-white/5">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="briefcase" class="w-5 h-5 text-accent"></i>
+                        <h2 class="section-header font-bold">Work Experience</h2>
+                    </div>
+                    <button onclick="addExperience()" class="p-2 btn-gradient">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="experience-list" class="p-6 space-y-6">
+                    <!-- Experience items will be injected here -->
+                </div>
+            </div>
+
+            <!-- Education -->
+            <div class="glass-effect overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b border-white/5">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="graduation-cap" class="w-5 h-5 text-accent"></i>
+                        <h2 class="section-header font-bold">Education</h2>
+                    </div>
+                    <button onclick="addEducation()" class="p-2 btn-gradient">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="education-list" class="p-6 space-y-6">
+                    <!-- Education items will be injected here -->
+                </div>
+            </div>
+
+            <!-- Certifications -->
+            <div class="glass-effect overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b border-white/5">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="award" class="w-5 h-5 text-accent"></i>
+                        <h2 class="section-header font-bold">Certifications</h2>
+                    </div>
+                    <button onclick="addCertification()" class="p-2 btn-gradient">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="certification-list" class="p-6 space-y-6">
+                    <!-- Certification items will be injected here -->
+                </div>
+            </div>
+
+            <!-- Skills -->
+            <div class="glass-effect overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b border-white/5">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="wrench" class="w-5 h-5 text-accent"></i>
+                        <h2 class="section-header font-bold">Skills</h2>
+                    </div>
+                    <button onclick="addSkill()" class="p-2 btn-gradient">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="skills-list" class="p-6 space-y-4">
+                    <!-- Skills list -->
+                </div>
+            </div>
+
+            <!-- Projects -->
+            <div class="glass-effect overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b border-white/5">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="folder-kanban" class="w-5 h-5 text-accent"></i>
+                        <h2 class="section-header font-bold">Projects</h2>
+                    </div>
+                    <button onclick="addProject()" class="p-2 btn-gradient">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="project-list" class="p-6 space-y-6">
+                    <!-- Project items will be injected here -->
+                </div>
+            </div>
+
+            <!-- About Me / Interests -->
+            <div class="glass-effect overflow-hidden">
+                <div class="px-6 py-4 flex items-center gap-3 border-b border-white/5">
+                    <i data-lucide="heart" class="w-5 h-5 text-accent"></i>
+                    <h2 class="section-header font-bold">About Me / Interests</h2>
+                </div>
+                <div class="p-6">
+                    <label>Tell us more about yourself</label>
+                    <textarea id="input-about" oninput="updatePreview()" rows="3" spellcheck="true" placeholder="Hobbies, interests, or a personal statement..."></textarea>
+                </div>
+            </div>
+
+            <!-- Languages -->
+            <div class="glass-effect overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b border-white/5">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="languages" class="w-5 h-5 text-accent"></i>
+                        <h2 class="section-header font-bold">Languages</h2>
+                    </div>
+                    <button onclick="addLanguage()" class="p-2 btn-gradient">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="language-list" class="p-6 space-y-4">
+                    <!-- Language items -->
+                </div>
+            </div>
+
+            <!-- References -->
+            <div class="glass-effect overflow-hidden">
+                <div class="px-6 py-4 flex items-center justify-between border-b border-white/5">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="users" class="w-5 h-5 text-accent"></i>
+                        <h2 class="section-header font-bold">References</h2>
+                    </div>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="flex p-1 bg-black/20 rounded-2xl gap-1 border border-white/5">
+                        <button onclick="setReferenceOption('request')" id="ref-opt-request" class="flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white/10 shadow-md text-white">Available Upon Request</button>
+                        <button onclick="setReferenceOption('custom')" id="ref-opt-custom" class="flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-400 hover:bg-white/5">Add Details</button>
+                    </div>
+                    
+                    <div id="reference-details-container" class="hidden space-y-6 transition-all duration-300">
+                        <div id="reference-list" class="space-y-6">
+                            <!-- Reference items -->
+                        </div>
+                        <button onclick="addReference()" class="w-full py-3 border-2 border-dashed border-white/10 rounded-2xl text-slate-400 hover:text-accent hover:border-accent transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Add Reference
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Side: Live Preview -->
+        <div class="lg:col-span-7 flex flex-col items-center">
+            <div class="sticky top-24 w-full flex flex-col items-center gap-4">
+                <div id="preview-card" class="preview-card w-full max-w-[800px] overflow-hidden">
+                    <div id="cv-preview" class="w-full bg-white min-h-[1122px] p-12 template-modern">
+                        <!-- Preview content will be injected here -->
+                    </div>
+                </div>
+                <p class="no-print text-slate-400 text-xs font-medium flex items-center gap-2">
+                    <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Real-time preview enabled
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Template Gallery Modal -->
+    <div id="template-gallery-overlay" class="sidebar-overlay" onclick="toggleTemplateGallery()"></div>
+    <div id="template-gallery" class="fixed top-1/2 left-1/2 bg-[#0b0618]/95 backdrop-blur-3xl border border-white/10 rounded-3xl z-[1001] overflow-hidden flex flex-col shadow-2xl w-[90%] max-w-5xl max-h-[85vh]">
+        <div class="p-8 border-b border-white/10 flex items-center justify-between bg-white/5">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-accent/20 rounded-2xl">
+                    <i data-lucide="layout" class="text-accent w-6 h-6"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-black tracking-tight text-white">Template Gallery</h2>
+                    <p class="text-slate-400 text-xs uppercase tracking-widest font-bold mt-1">Choose your professional layout</p>
+                </div>
+            </div>
+            <button onclick="toggleTemplateGallery()" class="p-3 hover:bg-white/10 rounded-full transition-all text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <div class="p-8 overflow-y-auto custom-scrollbar grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Modern -->
+            <div onclick="setTemplate('modern'); toggleTemplateGallery()" class="group cursor-pointer">
+                <div class="aspect-[1/1.4] bg-white rounded-2xl overflow-hidden border-4 border-transparent group-hover:border-accent transition-all shadow-lg relative">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="px-6 py-2 bg-accent text-white rounded-full font-bold text-sm shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">Select Template</span>
+                    </div>
+                    <div class="p-4 scale-[0.4] origin-top-left w-[250%] h-[250%] pointer-events-none">
+                        <div class="flex flex-col gap-4 text-slate-800">
+                            <div class="h-12 bg-slate-200 rounded-lg w-3/4"></div>
+                            <div class="flex gap-4">
+                                <div class="w-1/3 h-4 bg-slate-100 rounded"></div>
+                                <div class="w-1/3 h-4 bg-slate-100 rounded"></div>
+                            </div>
+                            <div class="h-4 bg-accent/20 rounded w-1/2"></div>
+                            <div class="space-y-2 mt-4">
+                                <div class="h-3 bg-slate-100 rounded w-full"></div>
+                                <div class="h-3 bg-slate-100 rounded w-full"></div>
+                                <div class="h-3 bg-slate-100 rounded w-5/6"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="mt-4 font-bold text-white text-center group-hover:text-accent transition-colors">Classic ATS</h3>
+            </div>
+
+            <!-- Minimal -->
+            <div onclick="setTemplate('minimal'); toggleTemplateGallery()" class="group cursor-pointer">
+                <div class="aspect-[1/1.4] bg-white rounded-2xl overflow-hidden border-4 border-transparent group-hover:border-accent transition-all shadow-lg relative">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="px-6 py-2 bg-accent text-white rounded-full font-bold text-sm shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">Select Template</span>
+                    </div>
+                    <div class="p-4 scale-[0.4] origin-top-left w-[250%] h-[250%] pointer-events-none flex flex-col items-center">
+                        <div class="w-24 h-24 rounded-full bg-slate-100 mb-6"></div>
+                        <div class="h-8 bg-slate-200 rounded-lg w-1/2 mb-4"></div>
+                        <div class="h-3 bg-slate-100 rounded w-3/4 mb-12"></div>
+                        <div class="w-full space-y-4">
+                            <div class="h-4 bg-slate-200 rounded w-1/4 mx-auto"></div>
+                            <div class="h-2 bg-slate-100 rounded w-full"></div>
+                            <div class="h-2 bg-slate-100 rounded w-full"></div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="mt-4 font-bold text-white text-center group-hover:text-accent transition-colors">Minimalist</h3>
+            </div>
+
+            <!-- Corporate -->
+            <div onclick="setTemplate('corporate'); toggleTemplateGallery()" class="group cursor-pointer">
+                <div class="aspect-[1/1.4] bg-white rounded-2xl overflow-hidden border-4 border-transparent group-hover:border-accent transition-all shadow-lg relative">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="px-6 py-2 bg-accent text-white rounded-full font-bold text-sm shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">Select Template</span>
+                    </div>
+                    <div class="scale-[0.4] origin-top-left w-[250%] h-[250%] pointer-events-none">
+                        <div class="h-32 bg-slate-800 w-full p-8 flex justify-between items-center">
+                            <div class="h-12 bg-white/20 rounded w-1/2"></div>
+                            <div class="w-20 h-20 rounded bg-white/10"></div>
+                        </div>
+                        <div class="p-8 space-y-8">
+                            <div class="h-4 bg-slate-200 rounded w-1/4 border-l-8 border-slate-800"></div>
+                            <div class="space-y-3">
+                                <div class="h-3 bg-slate-100 rounded w-full"></div>
+                                <div class="h-3 bg-slate-100 rounded w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="mt-4 font-bold text-white text-center group-hover:text-accent transition-colors">Corporate</h3>
+            </div>
+
+            <!-- Split -->
+            <div onclick="setTemplate('split'); toggleTemplateGallery()" class="group cursor-pointer">
+                <div class="aspect-[1/1.4] bg-white rounded-2xl overflow-hidden border-4 border-transparent group-hover:border-accent transition-all shadow-lg relative">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="px-6 py-2 bg-accent text-white rounded-full font-bold text-sm shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">Select Template</span>
+                    </div>
+                    <div class="scale-[0.4] origin-top-left w-[250%] h-[250%] pointer-events-none flex h-full">
+                        <div class="w-1/3 bg-slate-50 h-full p-6 space-y-6">
+                            <div class="w-20 h-20 rounded-full bg-slate-200 mx-auto"></div>
+                            <div class="h-4 bg-slate-300 rounded w-3/4 mx-auto"></div>
+                            <div class="space-y-2">
+                                <div class="h-2 bg-slate-200 rounded w-full"></div>
+                                <div class="h-2 bg-slate-200 rounded w-full"></div>
+                            </div>
+                        </div>
+                        <div class="w-2/3 p-8 space-y-8">
+                            <div class="h-4 bg-slate-200 rounded w-1/3"></div>
+                            <div class="h-20 bg-slate-50 rounded w-full"></div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="mt-4 font-bold text-white text-center group-hover:text-accent transition-colors">Split Layout</h3>
+            </div>
+
+            <!-- Elegant -->
+            <div onclick="setTemplate('elegant'); toggleTemplateGallery()" class="group cursor-pointer">
+                <div class="aspect-[1/1.4] bg-white rounded-2xl overflow-hidden border-4 border-transparent group-hover:border-accent transition-all shadow-lg relative">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="px-6 py-2 bg-accent text-white rounded-full font-bold text-sm shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">Select Template</span>
+                    </div>
+                    <div class="p-8 scale-[0.4] origin-top-left w-[250%] h-[250%] pointer-events-none flex flex-col items-center">
+                        <div class="h-12 bg-slate-200 rounded w-3/4 mb-4 italic"></div>
+                        <div class="h-2 bg-slate-100 rounded w-1/2 mb-8"></div>
+                        <div class="w-full h-[1px] bg-slate-200 mb-8"></div>
+                        <div class="grid grid-cols-12 w-full gap-4">
+                            <div class="col-span-4 h-4 bg-slate-100 rounded"></div>
+                            <div class="col-span-8 h-20 bg-slate-50 rounded italic"></div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="mt-4 font-bold text-white text-center group-hover:text-accent transition-colors">Elegant Serif</h3>
+            </div>
+
+            <!-- Compact -->
+            <div onclick="setTemplate('compact'); toggleTemplateGallery()" class="group cursor-pointer">
+                <div class="aspect-[1/1.4] bg-white rounded-2xl overflow-hidden border-4 border-transparent group-hover:border-accent transition-all shadow-lg relative">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span class="px-6 py-2 bg-accent text-white rounded-full font-bold text-sm shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-transform">Select Template</span>
+                    </div>
+                    <div class="p-4 scale-[0.4] origin-top-left w-[250%] h-[250%] pointer-events-none">
+                        <div class="flex justify-between items-center border-b pb-4 mb-4">
+                            <div class="h-8 bg-slate-200 rounded w-1/2"></div>
+                            <div class="w-12 h-12 bg-slate-100 rounded"></div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="h-3 bg-accent/20 rounded w-1/4"></div>
+                            <div class="h-12 bg-slate-50 rounded w-full"></div>
+                            <div class="h-3 bg-accent/20 rounded w-1/4"></div>
+                            <div class="h-12 bg-slate-50 rounded w-full"></div>
+                        </div>
+                    </div>
+                </div>
+                <h3 class="mt-4 font-bold text-white text-center group-hover:text-accent transition-colors">Compact</h3>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Typography Sidebar -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleTypographySidebar()"></div>
+    <div id="typography-sidebar" class="custom-scrollbar">
+        <div class="p-6 border-b border-white/10 flex items-center justify-between sticky top-0 backdrop-blur-3xl bg-white/5 z-10">
+            <div class="flex items-center gap-3">
+                <i data-lucide="type" class="text-accent w-5 h-5"></i>
+                <h2 class="text-lg font-bold">Typography</h2>
+            </div>
+            <button onclick="toggleTypographySidebar()" class="p-2 hover:bg-white/5 rounded-full transition-all">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-8">
+            <!-- Global Font Family -->
+            <div class="control-group">
+                <label>Global Font Family</label>
+                <select id="typo-font-family" onchange="updateTypography('fontFamily', this.value)">
+                    <option value="Inter">Inter</option>
+                    <option value="Poppins">Poppins</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Montserrat">Montserrat</option>
+                </select>
+            </div>
+
+            <!-- Name Customization -->
+            <div class="space-y-4">
+                <h3 class="text-xs font-black uppercase tracking-widest text-accent flex items-center gap-2">
+                    <span class="w-4 h-[1px] bg-white/10"></span> Name
+                </h3>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Font Size</span>
+                        <span id="label-name-size">32px</span>
+                    </div>
+                    <input type="range" id="typo-name-size" min="24" max="60" value="32" oninput="updateTypography('name.size', this.value)">
+                </div>
+                <div class="control-group">
+                    <label>Font Weight</label>
+                    <select id="typo-name-weight" onchange="updateTypography('name.weight', this.value)">
+                        <option value="400">Normal</option>
+                        <option value="500">Medium</option>
+                        <option value="700">Bold</option>
+                        <option value="900">Black</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Letter Spacing</span>
+                        <span id="label-name-spacing">0px</span>
+                    </div>
+                    <input type="range" id="typo-name-spacing" min="-2" max="10" value="0" step="0.5" oninput="updateTypography('name.spacing', this.value)">
+                </div>
+                <div class="control-group">
+                    <label>Color</label>
+                    <div class="flex items-center gap-3">
+                        <input type="color" id="typo-name-color" value="#000000" oninput="updateTypography('name.color', this.value)" class="w-10 h-10 rounded-lg bg-transparent border-none cursor-pointer">
+                        <span class="text-xs font-mono text-slate-400" id="label-name-color">#000000</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Title Customization -->
+            <div class="space-y-4">
+                <h3 class="text-xs font-black uppercase tracking-widest text-accent flex items-center gap-2">
+                    <span class="w-4 h-[1px] bg-white/10"></span> Section Titles
+                </h3>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Font Size</span>
+                        <span id="label-section-size">18px</span>
+                    </div>
+                    <input type="range" id="typo-section-size" min="10" max="18" value="18" oninput="updateTypography('sectionTitle.size', this.value)">
+                </div>
+                <div class="control-group flex items-center justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Bold Toggle</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="typo-section-bold" checked onchange="updateTypography('sectionTitle.bold', this.checked)" class="sr-only peer">
+                        <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:after:w-5 after:transition-all peer-checked-bg-accent"></div>
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label>Color</label>
+                    <div class="flex items-center gap-3">
+                        <input type="color" id="typo-section-color" value="#2563eb" oninput="updateTypography('sectionTitle.color', this.value)" class="w-10 h-10 rounded-lg bg-transparent border-none cursor-pointer">
+                        <span class="text-xs font-mono text-slate-400" id="label-section-color">#2563eb</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body Text Customization -->
+            <div class="space-y-4">
+                <h3 class="text-xs font-black uppercase tracking-widest text-accent flex items-center gap-2">
+                    <span class="w-4 h-[1px] bg-white/10"></span> Body Text
+                </h3>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Font Size</span>
+                        <span id="label-body-size">14px</span>
+                    </div>
+                    <input type="range" id="typo-body-size" min="10" max="18" value="14" oninput="updateTypography('bodyText.size', this.value)">
+                </div>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Line Height</span>
+                        <span id="label-body-height">1.5</span>
+                    </div>
+                    <input type="range" id="typo-body-height" min="1" max="2.5" value="1.5" step="0.1" oninput="updateTypography('bodyText.lineHeight', this.value)">
+                </div>
+                <div class="control-group">
+                    <label>Color</label>
+                    <div class="flex items-center gap-3">
+                        <input type="color" id="typo-body-color" value="#334155" oninput="updateTypography('bodyText.color', this.value)" class="w-10 h-10 rounded-lg bg-transparent border-none cursor-pointer">
+                        <span class="text-xs font-mono text-slate-400" id="label-body-color">#334155</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-4 pb-10">
+                <button onclick="resetTypography()" class="flex-1 py-3 px-4 rounded-xl border border-white/10 text-xs font-bold text-slate-400 hover:bg-white/5 transition-all">
+                    Reset to Default
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vanilla JS Logic -->
+    <script>
+        // --- State Management ---
+        let currentTemplate = 'modern';
+        let profilePhoto = '';
+        let accentColor = '#2563eb'; // App UI accent color
+        let cvAccentColor = localStorage.getItem('cv_accent_color') || '#2563eb'; // CV accent color
+        let spellcheckEnabled = true;
+        let fontSize = 14;
+        let experienceData = [{ id: Date.now(), company: 'Professional Organization', position: 'Management Trainee', start: '2022-01-01', end: '', currently: true, desc: 'Assisting in business operations and management tasks.' }];
+        let educationData = [{ id: Date.now() + 1, school: 'Omargoni MES College', degree: 'BBS', start: '2018-01-01', end: '2022-01-01', currently: false }];
+        let projectData = [{ id: Date.now() + 2, name: 'Business Analysis Project', link: 'example.com', desc: 'A comprehensive study on local market trends.' }];
+        let skillsData = [
+            { id: Date.now() + 5, name: 'Business Management', level: 'Advanced' },
+            { id: Date.now() + 6, name: 'Market Analysis', level: 'Advanced' },
+            { id: Date.now() + 7, name: 'Operations', level: 'Intermediate' }
+        ];
+        let languagesData = [{ id: Date.now() + 3, name: 'Bengali', level: 'Native' }];
+        let referencesData = [{ id: Date.now() + 4, name: 'Jane Smith', title: 'CTO', company: 'Innovate Corp', phone: '+1 234 567 890', email: 'jane@innovate.com' }];
+        let certificationsData = [{ id: Date.now() + 8, name: 'Google Project Management', organization: 'Coursera', date: '2023-05-15' }];
+        let referenceOption = 'request'; // 'custom' or 'request'
+        let pdfDPI = parseInt(localStorage.getItem('cv_pdf_dpi')) || 300;
+
+        const colorPresets = {
+            classic: { name: '#000000', section: '#111111', body: '#333333', accent: '#000000' },
+            corporate: { name: '#0B3D91', section: '#1E4DB7', body: '#2E3A59', accent: '#0B3D91' },
+            elegant: { name: '#5B2DA3', section: '#6A11CB', body: '#3A2F4F', accent: '#8E2DE2' },
+            green: { name: '#0F3D2E', section: '#146C43', body: '#2E4F3F', accent: '#1B5E20' }
+        };
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            if (dateStr === 'Present') return 'Present';
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return dateStr;
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${months[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        // --- Typography State ---
+        let typography = JSON.parse(localStorage.getItem('cv_typography')) || {
+            fontFamily: 'Inter',
+            name: { size: 32, weight: '900', spacing: 0, color: '#000000' },
+            sectionTitle: { size: 18, bold: true, color: '#2563eb' },
+            bodyText: { size: 14, lineHeight: 1.5, color: '#334155' }
+        };
+
+        // --- Initialization ---
+        window.onload = () => {
+            lucide.createIcons();
+            loadTypographyUI();
+            
+            // ESC key listener
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.getElementById('template-gallery').classList.remove('open');
+                    document.getElementById('template-gallery-overlay').classList.remove('active');
+                    document.getElementById('typography-sidebar').classList.remove('open');
+                    document.getElementById('sidebar-overlay').classList.remove('active');
+                }
+            });
+
+            // Load saved accent color or set default
+            const savedAccent = localStorage.getItem('cv_accent_color');
+            if (savedAccent) updateColor(savedAccent);
+            else updateColor('#2563eb');
+
+            // Set DPI selector
+            if (document.getElementById('pdf-dpi-selector')) {
+                document.getElementById('pdf-dpi-selector').value = pdfDPI;
+            }
+
+            // Set default values
+            document.getElementById('input-name').value = 'Boonaa Rafis';
+            document.getElementById('input-email').value = 'boo@example.com';
+            document.getElementById('input-phone').value = '+880 1XXX-XXXXXX';
+            document.getElementById('input-address').value = 'Chittagong, Bangladesh';
+            document.getElementById('input-objective').value = 'BBS graduate from Omargoni MES College with a strong foundation in business management and operations.';
+            document.getElementById('input-about').value = 'I am passionate about business development and market analysis.';
+            document.getElementById('photo-preview').innerHTML = `<img src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" class="w-full h-full object-cover">`;
+            
+            // Set personal info defaults
+            if (document.getElementById('input-father-name')) document.getElementById('input-father-name').value = "[Father's Name Placeholder]";
+            if (document.getElementById('input-mother-name')) document.getElementById('input-mother-name').value = "[Mother's Name Placeholder]";
+            if (document.getElementById('input-dob')) document.getElementById('input-dob').value = "1995-01-01";
+            if (document.getElementById('input-gender')) document.getElementById('input-gender').value = "Male";
+            if (document.getElementById('input-marital-status')) document.getElementById('input-marital-status').value = "Single";
+            if (document.getElementById('input-nationality')) document.getElementById('input-nationality').value = "Bangladeshi";
+            if (document.getElementById('input-religion')) document.getElementById('input-religion').value = "Islam";
+            if (document.getElementById('input-nid')) document.getElementById('input-nid').value = "1234567890";
+
+            renderLists();
+            updatePreview();
+        };
+
+        // --- Form Handlers ---
+        function handlePhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    profilePhoto = e.target.result;
+                    document.getElementById('photo-preview').innerHTML = `<img src="${profilePhoto}" class="w-full h-full object-cover photo-fade-in">`;
+                    updatePreview();
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function setTemplate(type) {
+            currentTemplate = type;
+            // Update UI buttons
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.getElementById(`btn-${type}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            // Update preview class
+            const preview = document.getElementById('cv-preview');
+            const padding = (type === 'modern') ? 'p-12' : 'p-0';
+            preview.className = `w-full bg-white min-h-[1122px] ${padding} template-${type} shadow-2xl transition-all duration-500`;
+            
+            updatePreview();
+        }
+
+        function updateColor(color) {
+            accentColor = color;
+            cvAccentColor = color;
+            document.getElementById('input-color').value = color;
+            localStorage.setItem('cv_accent_color', color);
+            
+            // Update App UI CSS variables
+            document.documentElement.style.setProperty('--accent-color', color);
+            
+            // Calculate RGB for shadow
+            const r = parseInt(color.slice(1, 3), 16);
+            const g = parseInt(color.slice(3, 5), 16);
+            const b = parseInt(color.slice(5, 7), 16);
+            document.documentElement.style.setProperty('--accent-color-rgb', `${r}, ${g}, ${b}`);
+
+            // Update typography section title color if it matches the old accent color or is default
+            if (typography.sectionTitle.color.toLowerCase() === '#6a11cb' || typography.sectionTitle.color.toLowerCase() === '#2563eb') {
+                updateTypography('sectionTitle.color', color);
+            }
+            updatePreview();
+        }
+
+        function updatePDFDPI(value) {
+            pdfDPI = parseInt(value);
+            localStorage.setItem('cv_pdf_dpi', pdfDPI);
+        }
+
+        function applyColorPreset(presetKey) {
+            const preset = colorPresets[presetKey];
+            const preview = document.getElementById('cv-preview');
+            
+            // Update CV-specific accent color
+            cvAccentColor = preset.accent;
+            localStorage.setItem('cv_accent_color', cvAccentColor);
+            
+            // Update CSS variables for instant transition
+            preview.style.setProperty('--cv-name-color', preset.name);
+            preview.style.setProperty('--cv-section-color', preset.section);
+            preview.style.setProperty('--cv-body-color', preset.body);
+            preview.style.setProperty('--cv-accent-color', preset.accent);
+            
+            // Sync with typography state
+            typography.name.color = preset.name;
+            typography.sectionTitle.color = preset.section;
+            typography.bodyText.color = preset.body;
+            
+            // Update UI controls if open
+            if (document.getElementById('typo-name-color')) {
+                document.getElementById('typo-name-color').value = preset.name;
+                document.getElementById('label-name-color').innerText = preset.name.toUpperCase();
+                document.getElementById('typo-section-color').value = preset.section;
+                document.getElementById('label-section-color').innerText = preset.section.toUpperCase();
+                document.getElementById('typo-body-color').value = preset.body;
+                document.getElementById('label-body-color').innerText = preset.body.toUpperCase();
+            }
+            
+            saveTypography();
+            updatePreview();
+        }
+
+        // --- Typography Handlers ---
+        function toggleTypographySidebar() {
+            const sidebar = document.getElementById('typography-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            // Close gallery if open
+            document.getElementById('template-gallery').classList.remove('open');
+            document.getElementById('template-gallery-overlay').classList.remove('active');
+        }
+
+        function toggleTemplateGallery() {
+            const gallery = document.getElementById('template-gallery');
+            const overlay = document.getElementById('template-gallery-overlay');
+            gallery.classList.toggle('open');
+            overlay.classList.toggle('active');
+            
+            // Close typography if open
+            document.getElementById('typography-sidebar').classList.remove('open');
+            document.getElementById('sidebar-overlay').classList.remove('active');
+        }
+
+        function updateTypography(path, value) {
+            const keys = path.split('.');
+            let current = typography;
+            for (let i = 0; i < keys.length - 1; i++) {
+                current = current[keys[i]];
+            }
+            
+            // Convert to appropriate type
+            if (typeof current[keys[keys.length - 1]] === 'number') {
+                value = parseFloat(value);
+            } else if (typeof current[keys[keys.length - 1]] === 'boolean') {
+                value = value === true || value === 'true';
+            }
+            
+            current[keys[keys.length - 1]] = value;
+            
+            // Update UI labels
+            const labelId = `label-${keys.join('-')}`;
+            const label = document.getElementById(labelId);
+            if (label) {
+                if (path.includes('size')) label.innerText = value + 'px';
+                else if (path.includes('spacing')) label.innerText = value + 'px';
+                else if (path.includes('lineHeight')) label.innerText = value;
+                else if (path.includes('color')) label.innerText = value.toUpperCase();
+            }
+
+            saveTypography();
+            updatePreview();
+        }
+
+        function saveTypography() {
+            localStorage.setItem('cv_typography', JSON.stringify(typography));
+        }
+
+        function loadTypographyUI() {
+            document.getElementById('typo-font-family').value = typography.fontFamily;
+            
+            document.getElementById('typo-name-size').value = typography.name.size;
+            document.getElementById('label-name-size').innerText = typography.name.size + 'px';
+            document.getElementById('typo-name-weight').value = typography.name.weight;
+            document.getElementById('typo-name-spacing').value = typography.name.spacing;
+            document.getElementById('label-name-spacing').innerText = typography.name.spacing + 'px';
+            document.getElementById('typo-name-color').value = typography.name.color;
+            document.getElementById('label-name-color').innerText = typography.name.color.toUpperCase();
+            
+            document.getElementById('typo-section-size').value = typography.sectionTitle.size;
+            document.getElementById('label-section-size').innerText = typography.sectionTitle.size + 'px';
+            document.getElementById('typo-section-bold').checked = typography.sectionTitle.bold;
+            document.getElementById('typo-section-color').value = typography.sectionTitle.color;
+            document.getElementById('label-section-color').innerText = typography.sectionTitle.color.toUpperCase();
+            
+            document.getElementById('typo-body-size').value = typography.bodyText.size;
+            document.getElementById('label-body-size').innerText = typography.bodyText.size + 'px';
+            document.getElementById('typo-body-height').value = typography.bodyText.lineHeight;
+            document.getElementById('label-body-height').innerText = typography.bodyText.lineHeight;
+            document.getElementById('typo-body-color').value = typography.bodyText.color;
+            document.getElementById('label-body-color').innerText = typography.bodyText.color.toUpperCase();
+        }
+
+        function resetTypography() {
+            typography = {
+                fontFamily: 'Inter',
+                name: { size: 32, weight: '900', spacing: 0, color: '#000000' },
+                sectionTitle: { size: 18, bold: true, color: '#2563eb' },
+                bodyText: { size: 14, lineHeight: 1.5, color: '#334155' }
+            };
+            loadTypographyUI();
+            saveTypography();
+            updatePreview();
+        }
+
+        function updateFontSize(size) {
+            fontSize = parseInt(size);
+            document.getElementById('font-size-value').innerText = fontSize + 'px';
+            updatePreview();
+        }
+
+        function toggleSpellcheck(enabled) {
+            spellcheckEnabled = enabled;
+            // Update all static inputs
+            document.querySelectorAll('input[type="text"], input[type="email"], textarea').forEach(el => {
+                el.setAttribute('spellcheck', enabled);
+            });
+            // Dynamic inputs will be updated on next render
+            renderLists();
+        }
+
+        // --- List Management ---
+        function addExperience() {
+            experienceData.push({ id: Date.now(), company: '', position: '', start: '', end: '', currently: false, desc: '' });
+            renderLists();
+            updatePreview();
+        }
+
+        function addEducation() {
+            educationData.push({ id: Date.now(), school: '', degree: '', start: '', end: '', currently: false });
+            renderLists();
+            updatePreview();
+        }
+
+        function addCertification() {
+            certificationsData.push({ id: Date.now(), name: '', organization: '', date: '' });
+            renderLists();
+            updatePreview();
+        }
+
+        function addProject() {
+            projectData.push({ id: Date.now(), name: '', link: '', desc: '' });
+            renderLists();
+            updatePreview();
+        }
+
+        function addSkill() {
+            skillsData.push({ id: Date.now(), name: '', level: 'Intermediate' });
+            renderLists();
+            updatePreview();
+        }
+
+        function addLanguage() {
+            languagesData.push({ id: Date.now(), name: '', level: 'Fluent' });
+            renderLists();
+            updatePreview();
+        }
+
+        function addReference() {
+            referencesData.push({ id: Date.now(), name: '', title: '', company: '', phone: '', email: '' });
+            renderLists();
+            updatePreview();
+        }
+
+        function setReferenceOption(opt) {
+            referenceOption = opt;
+            const reqBtn = document.getElementById('ref-opt-request');
+            const cusBtn = document.getElementById('ref-opt-custom');
+            const container = document.getElementById('reference-details-container');
+
+            if (opt === 'request') {
+                reqBtn.className = 'flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white/10 shadow-lg text-white border border-white/20';
+                cusBtn.className = 'flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-400 hover:bg-white/5 border border-transparent';
+                container.classList.add('hidden');
+            } else {
+                cusBtn.className = 'flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white/10 shadow-lg text-white border border-white/20';
+                reqBtn.className = 'flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-400 hover:bg-white/5 border border-transparent';
+                container.classList.remove('hidden');
+            }
+            updatePreview();
+        }
+
+        function removeItem(type, id) {
+            if (type === 'exp') experienceData = experienceData.filter(i => i.id !== id);
+            if (type === 'edu') educationData = educationData.filter(i => i.id !== id);
+            if (type === 'cert') certificationsData = certificationsData.filter(i => i.id !== id);
+            if (type === 'proj') projectData = projectData.filter(i => i.id !== id);
+            if (type === 'skill') skillsData = skillsData.filter(i => i.id !== id);
+            if (type === 'lang') languagesData = languagesData.filter(i => i.id !== id);
+            if (type === 'ref') referencesData = referencesData.filter(i => i.id !== id);
+            renderLists();
+            updatePreview();
+        }
+
+        function updateItem(type, id, field, value) {
+            let list;
+            if (type === 'exp') list = experienceData;
+            if (type === 'edu') list = educationData;
+            if (type === 'cert') list = certificationsData;
+            if (type === 'proj') list = projectData;
+            if (type === 'skill') list = skillsData;
+            if (type === 'lang') list = languagesData;
+            if (type === 'ref') list = referencesData;
+            
+            const item = list.find(i => i.id === id);
+            if (item) item[field] = value;
+            
+            if (field === 'currently') renderLists();
+            updatePreview();
+        }
+
+        function renderLists() {
+            // Render Experience
+            const expList = document.getElementById('experience-list');
+            expList.innerHTML = experienceData.map(exp => `
+                <div class="p-5 bg-white/5 rounded-2xl border border-white/10 relative group shadow-sm hover:shadow-md transition-all backdrop-blur-sm">
+                    <button onclick="removeItem('exp', ${exp.id})" class="absolute -top-2 -right-2 p-1.5 bg-white/10 border border-white/10 text-slate-400 hover:text-red-500 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all backdrop-blur-md z-10">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Company</label>
+                            <input type="text" value="${exp.company}" oninput="updateItem('exp', ${exp.id}, 'company', this.value)" spellcheck="${spellcheckEnabled}" placeholder="Company Name" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Position</label>
+                            <input type="text" value="${exp.position}" oninput="updateItem('exp', ${exp.id}, 'position', this.value)" spellcheck="${spellcheckEnabled}" placeholder="Job Title" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1 ml-1">
+                                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest">Start Date</label>
+                                <button onclick="updateItem('exp', ${exp.id}, 'start', '')" class="text-[8px] font-bold text-slate-500 hover:text-accent uppercase tracking-wider transition-colors">Clear</button>
+                            </div>
+                            <input type="date" value="${exp.start}" oninput="updateItem('exp', ${exp.id}, 'start', this.value)" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white focus:border-accent/50">
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1 ml-1">
+                                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest">End Date</label>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="updateItem('exp', ${exp.id}, 'end', '')" class="text-[8px] font-bold text-slate-500 hover:text-accent uppercase tracking-wider transition-colors ${exp.currently ? 'hidden' : ''}">Clear</button>
+                                    <button onclick="updateItem('exp', ${exp.id}, 'currently', ${!exp.currently})" class="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest transition-all ${exp.currently ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-white/5 text-slate-500 hover:text-slate-300 border border-white/5'}">
+                                        ${exp.currently ? 'Present' : 'Set Present'}
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <input type="date" value="${exp.end}" ${exp.currently ? 'disabled' : ''} oninput="updateItem('exp', ${exp.id}, 'end', this.value)" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white disabled:opacity-20 focus:border-accent/50">
+                                ${exp.currently ? `<div class="absolute inset-0 flex items-center px-4 text-sm text-accent font-bold pointer-events-none bg-[#0b0618]/80 rounded-xl border border-accent/20">Present</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Responsibilities</label>
+                        <textarea oninput="updateItem('exp', ${exp.id}, 'desc', this.value)" spellcheck="${spellcheckEnabled}" placeholder="Describe your role..." class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm resize-none h-24 transition-all text-white">${exp.desc}</textarea>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render Education
+            const eduList = document.getElementById('education-list');
+            eduList.innerHTML = educationData.map(edu => `
+                <div class="p-5 bg-white/5 rounded-2xl border border-white/10 relative group shadow-sm hover:shadow-md transition-all backdrop-blur-sm">
+                    <button onclick="removeItem('edu', ${edu.id})" class="absolute -top-2 -right-2 p-1.5 bg-white/10 border border-white/10 text-slate-400 hover:text-red-500 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all backdrop-blur-md z-10">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">School</label>
+                            <input type="text" value="${edu.school}" oninput="updateItem('edu', ${edu.id}, 'school', this.value)" spellcheck="${spellcheckEnabled}" placeholder="University Name" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Degree</label>
+                            <input type="text" value="${edu.degree}" oninput="updateItem('edu', ${edu.id}, 'degree', this.value)" spellcheck="${spellcheckEnabled}" placeholder="Bachelors in..." class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1 ml-1">
+                                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest">Start Date</label>
+                                <button onclick="updateItem('edu', ${edu.id}, 'start', '')" class="text-[8px] font-bold text-slate-500 hover:text-accent uppercase tracking-wider transition-colors">Clear</button>
+                            </div>
+                            <input type="date" value="${edu.start}" oninput="updateItem('edu', ${edu.id}, 'start', this.value)" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white focus:border-accent/50">
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1 ml-1">
+                                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest">End Date</label>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="updateItem('edu', ${edu.id}, 'end', '')" class="text-[8px] font-bold text-slate-500 hover:text-accent uppercase tracking-wider transition-colors ${edu.currently ? 'hidden' : ''}">Clear</button>
+                                    <button onclick="updateItem('edu', ${edu.id}, 'currently', ${!edu.currently})" class="px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest transition-all ${edu.currently ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'bg-white/5 text-slate-500 hover:text-slate-300 border border-white/5'}">
+                                        ${edu.currently ? 'Present' : 'Set Present'}
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <input type="date" value="${edu.end}" ${edu.currently ? 'disabled' : ''} oninput="updateItem('edu', ${edu.id}, 'end', this.value)" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white disabled:opacity-20 focus:border-accent/50">
+                                ${edu.currently ? `<div class="absolute inset-0 flex items-center px-4 text-sm text-accent font-bold pointer-events-none bg-[#0b0618]/80 rounded-xl border border-accent/20">Present</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render Certifications
+            const certList = document.getElementById('certification-list');
+            certList.innerHTML = certificationsData.map(cert => `
+                <div class="p-5 bg-white/5 rounded-2xl border border-white/10 relative group shadow-sm hover:shadow-md transition-all backdrop-blur-sm">
+                    <button onclick="removeItem('cert', ${cert.id})" class="absolute -top-2 -right-2 p-1.5 bg-white/10 border border-white/10 text-slate-400 hover:text-red-500 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all backdrop-blur-md z-10">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Certification Name</label>
+                            <input type="text" value="${cert.name}" oninput="updateItem('cert', ${cert.id}, 'name', this.value)" spellcheck="${spellcheckEnabled}" placeholder="e.g. PMP" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Issuing Organization</label>
+                            <input type="text" value="${cert.organization}" oninput="updateItem('cert', ${cert.id}, 'organization', this.value)" spellcheck="${spellcheckEnabled}" placeholder="e.g. Google" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1 ml-1">
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest">Date Obtained</label>
+                            <button onclick="updateItem('cert', ${cert.id}, 'date', '')" class="text-[8px] font-bold text-slate-500 hover:text-accent uppercase tracking-wider transition-colors">Clear</button>
+                        </div>
+                        <input type="date" value="${cert.date}" oninput="updateItem('cert', ${cert.id}, 'date', this.value)" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white focus:border-accent/50">
+                    </div>
+                </div>
+            `).join('');
+
+            // Render Projects
+            const projList = document.getElementById('project-list');
+            projList.innerHTML = projectData.map(proj => `
+                <div class="p-5 bg-white/5 rounded-2xl border border-white/10 relative group shadow-sm hover:shadow-md transition-all backdrop-blur-sm">
+                    <button onclick="removeItem('proj', ${proj.id})" class="absolute -top-2 -right-2 p-1.5 bg-white/10 border border-white/10 text-slate-400 hover:text-red-500 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all backdrop-blur-md z-10">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Project Name</label>
+                            <input type="text" value="${proj.name}" oninput="updateItem('proj', ${proj.id}, 'name', this.value)" spellcheck="${spellcheckEnabled}" placeholder="Project Title" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Project Link</label>
+                            <input type="text" value="${proj.link}" oninput="updateItem('proj', ${proj.id}, 'link', this.value)" spellcheck="${spellcheckEnabled}" placeholder="github.com/..." class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Description</label>
+                        <textarea oninput="updateItem('proj', ${proj.id}, 'desc', this.value)" spellcheck="${spellcheckEnabled}" placeholder="Describe the project..." class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm resize-none h-20 transition-all text-white">${proj.desc}</textarea>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render Skills
+            const skillsList = document.getElementById('skills-list');
+            skillsList.innerHTML = skillsData.map(skill => `
+                <div class="flex gap-3 items-center relative group p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+                    <div class="flex-1">
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Skill</label>
+                        <input type="text" value="${skill.name}" oninput="updateItem('skill', ${skill.id}, 'name', this.value)" spellcheck="${spellcheckEnabled}" placeholder="e.g. React" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                    </div>
+                    <div class="w-36">
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Level</label>
+                        <select onchange="updateItem('skill', ${skill.id}, 'level', this.value)" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                            <option value="Beginner" ${skill.level === 'Beginner' ? 'selected' : ''}>Beginner</option>
+                            <option value="Intermediate" ${skill.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
+                            <option value="Advanced" ${skill.level === 'Advanced' ? 'selected' : ''}>Advanced</option>
+                        </select>
+                    </div>
+                    <button onclick="removeItem('skill', ${skill.id})" class="mt-5 p-2 text-slate-400 hover:text-red-500 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            // Render Languages
+            const langList = document.getElementById('language-list');
+            langList.innerHTML = languagesData.map(lang => `
+                <div class="flex gap-3 items-center relative group p-3 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+                    <div class="flex-1">
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Language</label>
+                        <input type="text" value="${lang.name}" oninput="updateItem('lang', ${lang.id}, 'name', this.value)" spellcheck="${spellcheckEnabled}" placeholder="e.g. English" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                    </div>
+                    <div class="w-36">
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Proficiency</label>
+                        <select onchange="updateItem('lang', ${lang.id}, 'level', this.value)" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                            <option value="Native" ${lang.level === 'Native' ? 'selected' : ''}>Native</option>
+                            <option value="Fluent" ${lang.level === 'Fluent' ? 'selected' : ''}>Fluent</option>
+                            <option value="Intermediate" ${lang.level === 'Intermediate' ? 'selected' : ''}>Intermediate</option>
+                            <option value="Basic" ${lang.level === 'Basic' ? 'selected' : ''}>Basic</option>
+                        </select>
+                    </div>
+                    <button onclick="removeItem('lang', ${lang.id})" class="mt-5 p-2 text-slate-400 hover:text-red-500 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            // Render References
+            const refList = document.getElementById('reference-list');
+            refList.innerHTML = referencesData.map(ref => `
+                <div class="p-5 bg-white/5 rounded-2xl border border-white/10 relative group shadow-sm hover:shadow-md transition-all backdrop-blur-sm">
+                    <button onclick="removeItem('ref', ${ref.id})" class="absolute -top-2 -right-2 p-1.5 bg-white/10 border border-white/10 text-slate-400 hover:text-red-500 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all backdrop-blur-md z-10">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Name</label>
+                            <input type="text" value="${ref.name}" oninput="updateItem('ref', ${ref.id}, 'name', this.value)" spellcheck="${spellcheckEnabled}" placeholder="Reference Name" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Job Title</label>
+                            <input type="text" value="${ref.title}" oninput="updateItem('ref', ${ref.id}, 'title', this.value)" spellcheck="${spellcheckEnabled}" placeholder="Job Title" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Company</label>
+                        <input type="text" value="${ref.company}" oninput="updateItem('ref', ${ref.id}, 'company', this.value)" spellcheck="${spellcheckEnabled}" placeholder="Company Name" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Phone</label>
+                            <input type="text" value="${ref.phone}" oninput="updateItem('ref', ${ref.id}, 'phone', this.value)" spellcheck="${spellcheckEnabled}" placeholder="Phone Number" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-1">Email</label>
+                            <input type="text" value="${ref.email}" oninput="updateItem('ref', ${ref.id}, 'email', this.value)" spellcheck="${spellcheckEnabled}" placeholder="Email Address" class="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl outline-none text-sm transition-all text-white">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // --- Preview Logic ---
+        function updatePreview() {
+            const name = document.getElementById('input-name').value;
+            const email = document.getElementById('input-email').value;
+            const phone = document.getElementById('input-phone').value;
+            const address = document.getElementById('input-address').value;
+            const objective = document.getElementById('input-objective').value;
+            const about = document.getElementById('input-about').value;
+            const skills = skillsData.filter(s => s.name.trim());
+
+            // New fields
+            const fatherName = document.getElementById('input-father-name')?.value || '';
+            const motherName = document.getElementById('input-mother-name')?.value || '';
+            const dob = document.getElementById('input-dob')?.value || '';
+            const gender = document.getElementById('input-gender')?.value || '';
+            const maritalStatus = document.getElementById('input-marital-status')?.value || '';
+            const nationality = document.getElementById('input-nationality')?.value || '';
+            const religion = document.getElementById('input-religion')?.value || '';
+            const nid = document.getElementById('input-nid')?.value || '';
+            const bloodGroup = document.getElementById('input-blood-group')?.value || '';
+            const permanentAddress = document.getElementById('input-permanent-address')?.value || '';
+
+            const preview = document.getElementById('cv-preview');
+            if (!preview) return;
+
+            // Sync CSS variables with current typography state
+            preview.style.setProperty('--cv-name-color', typography.name.color);
+            preview.style.setProperty('--cv-section-color', typography.sectionTitle.color);
+            preview.style.setProperty('--cv-body-color', typography.bodyText.color);
+            preview.style.setProperty('--cv-accent-color', cvAccentColor);
+
+            // Apply Typography
+            const typoStyles = `
+                font-family: '${typography.fontFamily}', sans-serif;
+                color: var(--cv-body-color);
+                line-height: ${typography.bodyText.lineHeight};
+                font-size: ${typography.bodyText.size}px;
+            `;
+
+            const nameStyles = `
+                font-size: ${typography.name.size}px;
+                font-weight: ${typography.name.weight};
+                letter-spacing: ${typography.name.spacing}px;
+                color: var(--cv-name-color);
+                line-height: 1.1;
+            `;
+
+            const sectionHeaderStyles = `
+                font-size: ${typography.sectionTitle.size}px;
+                font-weight: ${typography.sectionTitle.bold ? 'bold' : 'normal'};
+                color: var(--cv-section-color);
+                border-color: var(--cv-accent-color);
+            `;
+
+            const photoHTML = `
+                <div class="photo-fade-in flex-shrink-0" style="width: 120px; height: 120px;">
+                    <img src="${profilePhoto || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'}" 
+                         class="w-full h-full rounded-full object-cover shadow-md border-4 border-white" 
+                         style="width: 120px; height: 120px;">
+                </div>
+            `;
+
+            const languagesHTML = languagesData.length > 0 ? `
+                <section>
+                    <h2 class="font-bold uppercase border-b border-slate-300 mb-2 pb-1" style="${sectionHeaderStyles}">Languages</h2>
+                    <ul class="grid grid-cols-2 gap-2">
+                        ${languagesData.map(l => `<li class="flex justify-between" style="font-size: 0.9em;"><span>${l.name}</span> <span class="font-bold opacity-60" style="font-size: 0.9em;">${l.level}</span></li>`).join('')}
+                    </ul>
+                </section>
+            ` : '';
+
+            const referencesHTML = `
+                <section>
+                    <h2 class="font-bold uppercase border-b border-slate-300 mb-2 pb-1" style="${sectionHeaderStyles}">References</h2>
+                    ${referenceOption === 'request' ? 
+                        `<p class="italic opacity-80" style="font-size: 0.9em;">References available upon request.</p>` :
+                        `<div class="grid grid-cols-2 gap-4">
+                            ${referencesData.map(r => `
+                                <div>
+                                    <h3 class="font-bold" style="font-size: 1em; color: ${typography.name.color};">${r.name}</h3>
+                                    <p class="opacity-80" style="font-size: 0.85em;">${r.title} at ${r.company}</p>
+                                    <p class="opacity-60" style="font-size: 0.75em;">${r.phone} | ${r.email}</p>
+                                </div>
+                            `).join('')}
+                        </div>`
+                    }
+                </section>
+            `;
+
+            const hasPersonalDetails = fatherName || motherName || dob || gender || maritalStatus || nationality || religion || nid || bloodGroup || permanentAddress;
+            const personalDetailsHTML = hasPersonalDetails ? `
+                <section>
+                    <h2 class="font-bold uppercase border-b border-slate-300 mb-2 pb-1" style="${sectionHeaderStyles}">Personal Details</h2>
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-1">
+                        ${fatherName ? `<div class="flex justify-between" style="font-size: 0.9em;"><span class="font-bold">Father's Name:</span> <span>${fatherName}</span></div>` : ''}
+                        ${motherName ? `<div class="flex justify-between" style="font-size: 0.9em;"><span class="font-bold">Mother's Name:</span> <span>${motherName}</span></div>` : ''}
+                        ${dob ? `<div class="flex justify-between" style="font-size: 0.9em;"><span class="font-bold">Date of Birth:</span> <span>${dob}</span></div>` : ''}
+                        ${gender ? `<div class="flex justify-between" style="font-size: 0.9em;"><span class="font-bold">Gender:</span> <span>${gender}</span></div>` : ''}
+                        ${maritalStatus ? `<div class="flex justify-between" style="font-size: 0.9em;"><span class="font-bold">Marital Status:</span> <span>${maritalStatus}</span></div>` : ''}
+                        ${nationality ? `<div class="flex justify-between" style="font-size: 0.9em;"><span class="font-bold">Nationality:</span> <span>${nationality}</span></div>` : ''}
+                        ${religion ? `<div class="flex justify-between" style="font-size: 0.9em;"><span class="font-bold">Religion:</span> <span>${religion}</span></div>` : ''}
+                        ${nid ? `<div class="flex justify-between" style="font-size: 0.9em;"><span class="font-bold">National ID:</span> <span>${nid}</span></div>` : ''}
+                        ${bloodGroup ? `<div class="flex justify-between" style="font-size: 0.9em;"><span class="font-bold">Blood Group:</span> <span>${bloodGroup}</span></div>` : ''}
+                        ${permanentAddress ? `<div class="col-span-2 flex flex-col mt-1" style="font-size: 0.9em;"><span class="font-bold">Permanent Address:</span> <span>${permanentAddress}</span></div>` : ''}
+                    </div>
+                </section>
+            ` : '';
+
+            const projectsHTML = projectData.length > 0 ? `
+                <section>
+                    <h2 class="font-bold uppercase border-b border-slate-300 mb-2 pb-1" style="${sectionHeaderStyles}">Projects</h2>
+                    <div class="space-y-4">
+                        ${projectData.map(p => `
+                            <div>
+                                <div class="flex justify-between items-baseline">
+                                    <h3 class="font-bold" style="font-size: 1em; color: ${typography.name.color};">${p.name}</h3>
+                                    <span class="opacity-60 italic" style="font-size: 0.8em;">${p.link}</span>
+                                </div>
+                                <p class="opacity-80" style="font-size: 0.9em;">${p.desc}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>
+            ` : '';
+
+            const certificationsHTML = certificationsData.length > 0 ? `
+                <section>
+                    <h2 class="font-bold uppercase border-b border-slate-300 mb-2 pb-1" style="${sectionHeaderStyles}">Certifications</h2>
+                    <div class="space-y-3">
+                        ${certificationsData.map(c => `
+                            <div class="flex justify-between items-baseline">
+                                <div>
+                                    <h3 class="font-bold" style="font-size: 1em; color: ${typography.name.color};">${c.name}</h3>
+                                    <p class="opacity-80" style="font-size: 0.85em;">${c.organization}</p>
+                                </div>
+                                <span class="font-black opacity-50 uppercase" style="font-size: 0.75em;">${formatDate(c.date)}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>
+            ` : '';
+
+            let templateHTML = '';
+            switch (currentTemplate) {
+                case 'modern':
+                    templateHTML = `
+                        <div class="flex flex-col gap-8 text-left max-w-[720px] mx-auto" style="${typoStyles}">
+                            <div class="border-b-2 border-slate-900 pb-6 mb-2 flex justify-between items-center gap-6" style="border-color: ${typography.name.color}44;">
+                                <div class="flex-1">
+                                    <h1 class="uppercase tracking-tight mb-2" style="${nameStyles}">${name || 'Your Name'}</h1>
+                                    <div class="flex flex-wrap gap-4 font-bold uppercase tracking-wider opacity-80" style="font-size: 0.8em;">
+                                        <span>${email}</span> <span>•</span> <span>${phone}</span> <span>•</span> <span>${address}</span>
+                                    </div>
+                                </div>
+                                ${photoHTML}
+                            </div>
+                            <section>
+                                <h2 class="font-black uppercase border-b mb-3 pb-1 tracking-widest" style="${sectionHeaderStyles}">Professional Summary</h2>
+                                <p class="leading-relaxed font-medium">${objective}</p>
+                            </section>
+                            <section>
+                                <h2 class="font-black uppercase border-b mb-4 pb-1 tracking-widest" style="${sectionHeaderStyles}">Work Experience</h2>
+                                <div class="space-y-6">
+                                    ${experienceData.map(exp => `
+                                        <div>
+                                            <div class="flex justify-between items-baseline mb-1">
+                                                <h3 class="font-extrabold uppercase tracking-tight" style="font-size: 1.1em; color: ${typography.name.color};">${exp.position}</h3>
+                                                <span class="font-black opacity-50 uppercase" style="font-size: 0.75em;">${formatDate(exp.start)} — ${exp.currently ? 'Present' : formatDate(exp.end)}</span>
+                                            </div>
+                                            <p class="font-bold mb-2 italic" style="color: ${typography.sectionTitle.color}; font-size: 0.9em;">${exp.company}</p>
+                                            <p class="opacity-80 leading-relaxed">${exp.desc}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </section>
+                            <section>
+                                <h2 class="font-black uppercase border-b mb-3 pb-1 tracking-widest" style="${sectionHeaderStyles}">Education</h2>
+                                <div class="space-y-4">
+                                    ${educationData.map(edu => `
+                                        <div class="flex justify-between items-baseline">
+                                            <div>
+                                                <h3 class="font-extrabold uppercase tracking-tight" style="font-size: 1em; color: ${typography.name.color};">${edu.degree}</h3>
+                                                <p class="font-bold italic opacity-70" style="font-size: 0.85em;">${edu.school}</p>
+                                            </div>
+                                            <span class="font-black opacity-50 uppercase" style="font-size: 0.75em;">${formatDate(edu.start)} — ${edu.currently ? 'Present' : formatDate(edu.end)}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </section>
+                            ${certificationsHTML}
+                            ${projectsHTML}
+                            <div class="grid grid-cols-2 gap-12">
+                                <section>
+                                    <h2 class="font-black uppercase border-b mb-3 pb-1 tracking-widest" style="${sectionHeaderStyles}">Skills & Expertise</h2>
+                                    <div class="grid grid-cols-1 gap-y-1">
+                                        ${skills.map(s => `
+                                            <div class="flex justify-between font-medium" style="font-size: 0.9em;">
+                                                <span>${s.name}</span>
+                                                <span class="opacity-50 font-bold" style="font-size: 0.9em;">${s.level}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </section>
+                                <section>
+                                    <h2 class="font-black uppercase border-b mb-3 pb-1 tracking-widest" style="${sectionHeaderStyles}">About Me</h2>
+                                    <p class="leading-relaxed font-medium">${about}</p>
+                                </section>
+                            </div>
+                            ${personalDetailsHTML}
+                            ${languagesHTML}
+                            ${referencesHTML}
+                        </div>
+                    `;
+                    break;
+                case 'minimal':
+                    templateHTML = `
+                        <div class="max-w-2xl mx-auto space-y-20 py-12 text-center" style="${typoStyles}">
+                            <div class="space-y-6 flex flex-col items-center">
+                                ${photoHTML}
+                                <div class="space-y-4">
+                                    <h1 class="uppercase leading-tight" style="${nameStyles}">${name || 'Your Name'}</h1>
+                                    <div class="flex justify-center gap-8 opacity-60 font-bold uppercase tracking-[0.4em]" style="font-size: 0.7em;">
+                                        <span>${email}</span> <span>/</span> <span>${phone}</span> <span>/</span> <span>${address}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <section class="px-16">
+                                <h2 class="font-bold uppercase tracking-[0.5em] mb-8 opacity-50" style="font-size: 0.9em;">Summary</h2>
+                                <p class="font-light italic">${objective}</p>
+                            </section>
+                            <section class="space-y-12 text-left">
+                                <h2 class="font-bold uppercase tracking-[0.5em] mb-12 text-center opacity-50" style="font-size: 0.9em;">Experience</h2>
+                                <div class="space-y-16">
+                                    ${experienceData.map(exp => `
+                                        <div class="space-y-4">
+                                            <div class="flex justify-between items-end border-b border-slate-100 pb-2">
+                                                <h3 class="font-light uppercase tracking-[0.15em]" style="font-size: 1.2em; color: ${typography.name.color};">${exp.position}</h3>
+                                                <span class="opacity-40 uppercase tracking-widest font-bold" style="font-size: 0.7em;">${formatDate(exp.start)} — ${exp.currently ? 'Present' : formatDate(exp.end)}</span>
+                                            </div>
+                                            <p class="font-bold uppercase tracking-[0.3em]" style="color: ${typography.sectionTitle.color}aa; font-size: 0.8em;">${exp.company}</p>
+                                            <p class="opacity-70 font-light">${exp.desc}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </section>
+                            ${certificationsHTML}
+                            ${projectsHTML}
+                            <div class="grid grid-cols-2 gap-24 text-left">
+                                <section class="space-y-6">
+                                    <h2 class="font-bold uppercase tracking-[0.5em] mb-8 opacity-50" style="font-size: 0.9em;">Education</h2>
+                                    ${educationData.map(edu => `
+                                        <div class="space-y-2">
+                                            <h3 class="font-medium uppercase tracking-widest" style="font-size: 0.95em; color: ${typography.name.color};">${edu.degree}</h3>
+                                            <p class="opacity-60 uppercase tracking-[0.2em]" style="font-size: 0.8em;">${edu.school}</p>
+                                            <p class="opacity-40 font-bold" style="font-size: 0.7em;">${formatDate(edu.start)} — ${formatDate(edu.currently ? 'Present' : edu.end)}</p>
+                                        </div>
+                                    `).join('')}
+                                </section>
+                                <section class="space-y-6">
+                                    <h2 class="font-bold uppercase tracking-[0.5em] mb-8 opacity-50" style="font-size: 0.9em;">Skills</h2>
+                                    <div class="flex flex-wrap gap-x-8 gap-y-4">
+                                        ${skills.map(s => `
+                                            <div class="flex flex-col">
+                                                <span class="opacity-60 font-light tracking-wider uppercase" style="font-size: 0.85em;">${s.name}</span>
+                                                <span class="opacity-40 font-bold uppercase tracking-tighter" style="font-size: 0.6em;">${s.level}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </section>
+                            </div>
+                            ${personalDetailsHTML}
+                            <div class="grid grid-cols-2 gap-24 text-left">
+                                <section class="space-y-6">
+                                    <h2 class="font-bold uppercase tracking-[0.5em] mb-8 opacity-50" style="font-size: 0.9em;">Languages</h2>
+                                    <div class="space-y-2">
+                                        ${languagesData.map(l => `<p class="opacity-60 font-light tracking-widest uppercase" style="font-size: 0.85em;">${l.name} <span class="font-bold opacity-100" style="font-size: 0.75em;">/ ${l.level}</span></p>`).join('')}
+                                    </div>
+                                </section>
+                                <section class="space-y-6">
+                                    <h2 class="font-bold uppercase tracking-[0.5em] mb-8 opacity-50" style="font-size: 0.9em;">References</h2>
+                                    ${referenceOption === 'request' ? 
+                                        `<p class="opacity-60 font-light italic tracking-widest uppercase" style="font-size: 0.85em;">Available upon request</p>` :
+                                        `<div class="space-y-4">
+                                            ${referencesData.map(r => `
+                                                <div>
+                                                    <h3 class="font-medium uppercase tracking-widest" style="font-size: 0.85em; color: ${typography.name.color};">${r.name}</h3>
+                                                    <p class="opacity-60 uppercase tracking-[0.2em]" style="font-size: 0.65em;">${r.title}</p>
+                                                </div>
+                                            `).join('')}
+                                        </div>`
+                                    }
+                                </section>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'corporate':
+                    templateHTML = `
+                        <div class="flex flex-col gap-0 border-2 border-slate-800" style="${typoStyles}">
+                            <div class="bg-slate-800 text-white p-10 flex justify-between items-center" style="background-color: ${typography.name.color};">
+                                <div class="space-y-4">
+                                    <h1 class="font-bold tracking-tight leading-none" style="font-size: ${typography.name.size}px; font-weight: ${typography.name.weight}; letter-spacing: ${typography.name.spacing}px;">${name || 'Your Name'}</h1>
+                                    <div class="flex gap-6 text-slate-300 font-medium" style="font-size: 0.9em;">
+                                        <span>${email}</span> <span>|</span> <span>${phone}</span> <span>|</span> <span>${address}</span>
+                                    </div>
+                                </div>
+                                ${photoHTML}
+                            </div>
+                            <div class="p-10 space-y-10">
+                                <section>
+                                    <h2 class="font-bold uppercase tracking-wider border-l-4 pl-4 mb-4" style="${sectionHeaderStyles}">Professional Summary</h2>
+                                    <p class="leading-relaxed">${objective}</p>
+                                </section>
+                                <section>
+                                    <h2 class="font-bold uppercase tracking-wider border-l-4 pl-4 mb-8" style="${sectionHeaderStyles}">Professional Experience</h2>
+                                    <div class="space-y-10">
+                                        ${experienceData.map(exp => `
+                                            <div class="relative pl-6 border-l-2 border-slate-100">
+                                                <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full border-4 border-white shadow-sm" style="background-color: ${typography.sectionTitle.color}"></div>
+                                                <div class="flex justify-between items-baseline mb-2">
+                                                    <h3 class="font-bold text-slate-900 tracking-tight uppercase" style="font-size: 1.1em;">${exp.position}</h3>
+                                                    <span class="font-bold px-3 py-1 rounded-full text-white" style="background-color: ${typography.sectionTitle.color}; font-size: 0.65em;">${formatDate(exp.start)} — ${exp.currently ? 'Present' : formatDate(exp.end)}</span>
+                                                </div>
+                                                <p class="font-extrabold mb-3 italic tracking-wide" style="font-size: 0.85em; color: ${typography.sectionTitle.color};">${exp.company}</p>
+                                                <p class="opacity-70 leading-relaxed" style="font-size: 0.85em;">${exp.desc}</p>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </section>
+                                ${certificationsHTML}
+                                ${projectsHTML}
+                                <div class="grid grid-cols-2 gap-16">
+                                    <section>
+                                        <h2 class="font-bold uppercase tracking-wider border-l-4 pl-4 mb-6" style="${sectionHeaderStyles}">Education</h2>
+                                        <div class="space-y-6">
+                                            ${educationData.map(edu => `
+                                                <div class="group">
+                                                    <h3 class="font-bold text-slate-900 uppercase tracking-tight" style="font-size: 0.85em;">${edu.degree}</h3>
+                                                    <p class="opacity-70 font-bold italic" style="font-size: 0.75em;">${edu.school}</p>
+                                                    <p class="opacity-40 font-bold uppercase mt-1" style="font-size: 0.65em;">${formatDate(edu.start)} — ${edu.currently ? 'Present' : formatDate(edu.end)}</p>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </section>
+                                    <section>
+                                        <h2 class="font-bold uppercase tracking-wider border-l-4 pl-4 mb-6" style="${sectionHeaderStyles}">Core Competencies</h2>
+                                        <div class="flex flex-wrap gap-2">
+                                            ${skills.map(s => `
+                                                <div class="px-3 py-1.5 rounded-lg font-bold text-white shadow-sm flex flex-col items-center" style="background-color: ${typography.sectionTitle.color}ee;">
+                                                    <span style="font-size: 0.75em;">${s.name}</span>
+                                                    <span class="opacity-60 uppercase tracking-tighter" style="font-size: 0.5em;">${s.level}</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </section>
+                                </div>
+                                ${personalDetailsHTML}
+                                <div class="grid grid-cols-2 gap-16">
+                                    <section>
+                                        <h2 class="font-bold uppercase tracking-wider border-l-4 pl-4 mb-6" style="${sectionHeaderStyles}">Languages</h2>
+                                        <ul class="space-y-3">
+                                            ${languagesData.map(l => `
+                                                <li class="opacity-70 flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-100" style="font-size: 0.75em;">
+                                                    <span class="font-bold uppercase tracking-wider">${l.name}</span> 
+                                                    <span class="font-bold px-2 py-0.5 rounded text-white uppercase" style="background-color: ${typography.sectionTitle.color}88; font-size: 0.85em;">${l.level}</span>
+                                                </li>
+                                            `).join('')}
+                                        </ul>
+                                    </section>
+                                    <section>
+                                        <h2 class="font-bold uppercase tracking-wider border-l-4 pl-4 mb-6" style="${sectionHeaderStyles}">References</h2>
+                                        ${referenceOption === 'request' ? 
+                                            `<div class="bg-slate-50 p-4 rounded-xl border-2 border-dashed border-slate-200 text-center">
+                                                <p class="opacity-50 font-bold italic uppercase tracking-widest" style="font-size: 0.75em;">Available upon request</p>
+                                            </div>` :
+                                            `<div class="space-y-4">
+                                                ${referencesData.map(r => `
+                                                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                                        <h3 class="font-bold text-slate-900 uppercase tracking-tight" style="font-size: 0.75em;">${r.name}</h3>
+                                                        <p class="opacity-60 font-bold italic" style="font-size: 0.65em;">${r.title} at ${r.company}</p>
+                                                    </div>
+                                                `).join('')}
+                                            </div>`
+                                        }
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'split':
+                    templateHTML = `
+                        <div class="flex h-full min-h-[1122px]" style="${typoStyles}">
+                            <div class="w-1/3 bg-slate-50 p-8 border-r border-slate-200 flex flex-col gap-8">
+                                <div class="flex flex-col items-center text-center gap-4">
+                                    ${photoHTML}
+                                    <h1 class="uppercase leading-tight" style="${nameStyles}">${name || 'Your Name'}</h1>
+                                </div>
+                                <div class="space-y-4">
+                                    <h2 class="font-bold uppercase border-b pb-1" style="${sectionHeaderStyles}">Contact</h2>
+                                    <div class="space-y-2 text-sm opacity-80">
+                                        <p class="flex items-center gap-2"><i data-lucide="mail" class="w-3 h-3"></i> ${email}</p>
+                                        <p class="flex items-center gap-2"><i data-lucide="phone" class="w-3 h-3"></i> ${phone}</p>
+                                        <p class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3"></i> ${address}</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <h2 class="font-bold uppercase border-b pb-1" style="${sectionHeaderStyles}">Skills</h2>
+                                    <div class="space-y-2">
+                                        ${skills.map(s => `
+                                            <div class="flex justify-between text-sm">
+                                                <span>${s.name}</span>
+                                                <span class="opacity-50 font-bold">${s.level}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                ${languagesHTML}
+                            </div>
+                            <div class="w-2/3 p-10 space-y-8">
+                                <section>
+                                    <h2 class="font-bold uppercase border-b pb-1 mb-3" style="${sectionHeaderStyles}">Summary</h2>
+                                    <p class="leading-relaxed">${objective}</p>
+                                </section>
+                                <section>
+                                    <h2 class="font-bold uppercase border-b pb-1 mb-4" style="${sectionHeaderStyles}">Experience</h2>
+                                    <div class="space-y-6">
+                                        ${experienceData.map(exp => `
+                                            <div>
+                                                <div class="flex justify-between items-baseline">
+                                                    <h3 class="font-bold" style="color: ${typography.name.color};">${exp.position}</h3>
+                                                    <span class="text-xs opacity-50">${formatDate(exp.start)} — ${exp.currently ? 'Present' : formatDate(exp.end)}</span>
+                                                </div>
+                                                <p class="text-sm font-bold opacity-70 italic">${exp.company}</p>
+                                                <p class="text-sm mt-2 opacity-80">${exp.desc}</p>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </section>
+                                ${certificationsHTML}
+                                ${projectsHTML}
+                                <section>
+                                    <h2 class="font-bold uppercase border-b pb-1 mb-4" style="${sectionHeaderStyles}">Education</h2>
+                                    <div class="space-y-4">
+                                        ${educationData.map(edu => `
+                                            <div class="flex justify-between items-baseline">
+                                                <div>
+                                                    <h3 class="font-bold" style="color: ${typography.name.color};">${edu.degree}</h3>
+                                                    <p class="text-sm opacity-70">${edu.school}</p>
+                                                </div>
+                                                <span class="text-xs opacity-50">${formatDate(edu.start)} — ${edu.currently ? 'Present' : formatDate(edu.end)}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </section>
+                                ${personalDetailsHTML}
+                                ${referencesHTML}
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'elegant':
+                    templateHTML = `
+                        <div class="max-w-[800px] mx-auto py-16 px-12 space-y-12" style="${typoStyles}; font-family: 'Playfair Display', serif;">
+                            <div class="text-center space-y-6">
+                                <h1 class="italic" style="${nameStyles}; font-family: 'Playfair Display', serif;">${name || 'Your Name'}</h1>
+                                <div class="flex justify-center gap-6 text-sm uppercase tracking-widest opacity-60">
+                                    <span>${email}</span> <span>|</span> <span>${phone}</span> <span>|</span> <span>${address}</span>
+                                </div>
+                                <div class="flex justify-center">${photoHTML}</div>
+                            </div>
+                            <div class="h-[1px] bg-slate-200 w-full"></div>
+                            <section class="grid grid-cols-12 gap-8">
+                                <div class="col-span-4 font-bold uppercase tracking-widest opacity-40" style="font-size: 0.8em;">Profile</div>
+                                <div class="col-span-8 italic leading-relaxed">${objective}</div>
+                            </section>
+                            <section class="grid grid-cols-12 gap-8">
+                                <div class="col-span-4 font-bold uppercase tracking-widest opacity-40" style="font-size: 0.8em;">Experience</div>
+                                <div class="col-span-8 space-y-10">
+                                    ${experienceData.map(exp => `
+                                        <div class="space-y-2">
+                                            <div class="flex justify-between items-center">
+                                                <h3 class="font-bold text-lg" style="color: ${typography.name.color};">${exp.position}</h3>
+                                                <span class="text-xs opacity-40 italic">${formatDate(exp.start)} — ${exp.currently ? 'Present' : formatDate(exp.end)}</span>
+                                            </div>
+                                            <p class="uppercase tracking-widest text-xs font-bold opacity-60">${exp.company}</p>
+                                            <p class="opacity-70 leading-relaxed">${exp.desc}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </section>
+                            ${projectsHTML}
+                            <section class="grid grid-cols-12 gap-8">
+                                <div class="col-span-4 font-bold uppercase tracking-widest opacity-40" style="font-size: 0.8em;">Education</div>
+                                <div class="col-span-8 space-y-6">
+                                    ${educationData.map(edu => `
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <h3 class="font-bold" style="color: ${typography.name.color};">${edu.degree}</h3>
+                                                <p class="text-sm opacity-60 italic">${edu.school}</p>
+                                            </div>
+                                            <span class="text-xs opacity-40 italic">${formatDate(edu.start)} — ${edu.currently ? 'Present' : formatDate(edu.end)}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </section>
+                            ${certificationsData.length > 0 ? `
+                                <section class="grid grid-cols-12 gap-8">
+                                    <div class="col-span-4 font-bold uppercase tracking-widest opacity-40" style="font-size: 0.8em;">Certifications</div>
+                                    <div class="col-span-8 space-y-4">
+                                        ${certificationsData.map(c => `
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <h3 class="font-bold" style="color: ${typography.name.color};">${c.name}</h3>
+                                                    <p class="text-sm opacity-60 italic">${c.organization}</p>
+                                                </div>
+                                                <span class="text-xs opacity-40 italic">${formatDate(c.date)}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </section>
+                            ` : ''}
+                            <section class="grid grid-cols-12 gap-8">
+                                <div class="col-span-4 font-bold uppercase tracking-widest opacity-40" style="font-size: 0.8em;">Expertise</div>
+                                <div class="col-span-8 flex flex-wrap gap-x-8 gap-y-2">
+                                    ${skills.map(s => `<span class="italic opacity-80">${s.name}</span>`).join('')}
+                                </div>
+                            </section>
+                            ${personalDetailsHTML}
+                        </div>
+                    `;
+                    break;
+                case 'compact':
+                    templateHTML = `
+                        <div class="p-8 space-y-4 text-sm" style="${typoStyles}; line-height: 1.2;">
+                            <div class="flex justify-between items-start border-b pb-4">
+                                <div>
+                                    <h1 class="uppercase" style="${nameStyles}; font-size: 24px;">${name || 'Your Name'}</h1>
+                                    <div class="flex gap-3 text-[10px] opacity-70 mt-1">
+                                        <span>${email}</span> | <span>${phone}</span> | <span>${address}</span>
+                                    </div>
+                                </div>
+                                <div style="width: 60px; height: 60px;">
+                                    <img src="${profilePhoto || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'}" class="w-full h-full rounded-lg object-cover">
+                                </div>
+                            </div>
+                            <section>
+                                <h2 class="font-bold uppercase border-b text-[11px] mb-1" style="color: ${typography.sectionTitle.color};">Experience</h2>
+                                <div class="space-y-2">
+                                    ${experienceData.map(exp => `
+                                        <div>
+                                            <div class="flex justify-between font-bold text-[12px]">
+                                                <span>${exp.position} @ ${exp.company}</span>
+                                                <span class="opacity-50">${formatDate(exp.start)}-${exp.currently ? 'Present' : formatDate(exp.end)}</span>
+                                            </div>
+                                            <p class="text-[11px] opacity-80">${exp.desc.substring(0, 150)}${exp.desc.length > 150 ? '...' : ''}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </section>
+                            ${certificationsData.length > 0 ? `
+                                <section>
+                                    <h2 class="font-bold uppercase border-b text-[11px] mb-1" style="color: ${typography.sectionTitle.color};">Certifications</h2>
+                                    <div class="space-y-1">
+                                        ${certificationsData.map(c => `
+                                            <div class="flex justify-between text-[11px]">
+                                                <span>${c.name} - ${c.organization}</span>
+                                                <span class="opacity-50">${formatDate(c.date)}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </section>
+                            ` : ''}
+                            ${projectsHTML}
+                            <div class="grid grid-cols-2 gap-4">
+                                <section>
+                                    <h2 class="font-bold uppercase border-b text-[11px] mb-1" style="color: ${typography.sectionTitle.color};">Education</h2>
+                                    ${educationData.map(edu => `
+                                        <div class="text-[11px]">
+                                            <p class="font-bold">${edu.degree}</p>
+                                            <p class="opacity-70">${edu.school} (${formatDate(edu.start)}-${edu.currently ? 'Present' : formatDate(edu.end)})</p>
+                                        </div>
+                                    `).join('')}
+                                </section>
+                                <section>
+                                    <h2 class="font-bold uppercase border-b text-[11px] mb-1" style="color: ${typography.sectionTitle.color};">Skills</h2>
+                                    <p class="text-[11px] opacity-80">${skills.map(s => s.name).join(', ')}</p>
+                                </section>
+                            </div>
+                            ${personalDetailsHTML}
+                        </div>
+                    `;
+                    break;
+            }
+            preview.innerHTML = templateHTML;
+            lucide.createIcons();
+        }
+
+        // --- Export Functions ---
+        async function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('cv-preview');
+            const name = document.getElementById('input-name').value || 'My';
+            
+            // Show loading state
+            const btn = document.querySelector('button[onclick="exportPDF()"]');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> <span class="hidden sm:inline">Processing...</span>';
+            lucide.createIcons();
+
+            try {
+                const canvas = await html2canvas(element, { 
+                    scale: pdfDPI / 96,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    onclone: (clonedDoc) => {
+                        const el = clonedDoc.getElementById('cv-preview');
+                        el.style.boxShadow = 'none';
+                        el.style.border = 'none';
+                        // Remove all shadows for crisp PDF rendering
+                        const shadowedElements = el.querySelectorAll('*');
+                        shadowedElements.forEach(item => {
+                            item.style.textShadow = 'none';
+                            item.style.boxShadow = 'none';
+                        });
+                    }
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+                
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth * ratio, imgHeight * ratio, undefined, 'FAST');
+                pdf.save(`${name.replace(/\s+/g, '_')}_CV.pdf`);
+            } catch (error) {
+                console.error('PDF Export Error:', error);
+                alert('Failed to generate high-quality PDF. Please try again.');
+            } finally {
+                btn.innerHTML = originalHTML;
+                lucide.createIcons();
+            }
+        }
+
+        async function exportImage() {
+            const element = document.getElementById('cv-preview');
+            const name = document.getElementById('input-name').value || 'My';
+            
+            const canvas = await html2canvas(element, { 
+                scale: pdfDPI / 96, 
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
+            const link = document.createElement('a');
+            link.download = `${name.replace(/\s+/g, '_')}_CV.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function resetForm() {
+            if (confirm('Are you sure you want to reset?')) location.reload();
+        }
+    </script>
+</body>
+</html>
